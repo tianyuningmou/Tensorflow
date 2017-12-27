@@ -3,7 +3,7 @@
 """
 Copyright () 2017
 
-All rights reserved by easyto
+All rights reserved by tianyuningmou
 
 FILE: 06_GDO.py
 AUTHOR:  tianyuningmou
@@ -33,6 +33,7 @@ def add_layer(inputs, in_size, out_size, activation_function=None):
     else:
         outputs = activation_function(Wx_plus_b)
     return outputs
+
 
 # 训练的数据
 x_data = np.linspace(-1, 1, 300)[:, np.newaxis]

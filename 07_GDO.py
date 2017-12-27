@@ -3,7 +3,7 @@
 """
 Copyright () 2017
 
-All rights reserved by easyto
+All rights reserved by tianyuningmou
 
 FILE: 07_GDO.py
 AUTHOR:  tianyuningmou
