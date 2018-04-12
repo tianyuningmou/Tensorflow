@@ -61,7 +61,7 @@ class FNN(object):
         return tf.Variable(initial)
 
     def bias_init(self, shape):
-        initial = tf.constant(1.0, shape)
+        initial = tf.constant(0.1, shape=shape)
         return tf.Variable(initial)
 
     def variable_summaries(self, var, name):
@@ -122,7 +122,8 @@ class FNN(object):
         # 开始叠加隐藏层，这个跟千层饼没什么区别
         for i in range(self.Layers):
             # 使用刚才编写的函数来建立层，并更新incoming的位置
-            incoming, l2_loss = self.layer(incoming, layer_nodes[i], layer_nodes[i+1], prefix+'_hid_'+str(i+1), act=tf.nn.relu)
+            incoming, l2_loss = self.layer(incoming, layer_nodes[i], layer_nodes[i + 1],
+                                           prefix + '_hid_' + str(i+1), act=tf.nn.relu)
             # 累计l2
             self.total_l2.append(l2_loss)
             # 输出一些信息，让我们知道网络在建造中做了什么
@@ -218,4 +219,65 @@ Y_train = np.vstack(y)[int(total_samples / vali_size):].astype('float32')
 X_test = np.vstack(x)[: int(total_samples / vali_size)].astype('float32')
 Y_test = np.vstack(y)[: int(total_samples / vali_size)].astype('float32')
 
-print(X_train.shape,Y_train.shape,X_test.shape,Y_test.shape)
+print(X_train.shape, Y_train.shape, X_test.shape, Y_test.shape)
+
+ff = FNN(learning_rate=7e-5, Layers=5, N_hidden=[2048, 1024, 512, 256, 128], D_input=1599, D_label=24, L2_lambda=1e-4)
+sess = tf.InteractiveSession()
+tf.global_variables_initializer().run()
+merged = tf.summary.merge_all()
+train_writer = tf.summary.FileWriter('log3' + '/train', sess.graph)
+test_writer = tf.summary.FileWriter('log3' + '/test')
+
+
+def plots(T, P, i, length=400):
+    m = 0
+    plt.figure(figsize=(20, 16))
+    plt.subplot(411)
+    plt.plot(T[m: m + length, 7], '--')
+    plt.plot(P[m: m + length, 7])
+
+    plt.subplot(412)
+    plt.plot(T[m: m + length, 8], '--')
+    plt.plot(P[m: m + length, 8])
+
+    plt.subplot(413)
+    plt.plot(T[m: m + length, 15], '--')
+    plt.plot(P[m: m + length, 15])
+
+    plt.subplot(414)
+    plt.plot(T[m: m + length, 16], '--')
+    plt.plot(P[m: m + length, 16])
+
+    plt.legend(['True', 'Predicted'])
+    plt.savefig('epoch' + str(i) + '.png')
+    plt.close()
+
+
+k = 0
+Batch = 32
+for i in range(50):
+    index = 0
+    X0, Y0 = ff.shuffle_lists([X_train, Y_train])
+    while index < X_train.shape[0]:
+        summary, _ = sess.run([merged, ff.train_step], feed_dict={ff.inputs: X0[index: index + Batch],
+                                                                  ff.labels: Y0[index: index + Batch],
+                                                                  ff.drop_keep_rate: 1.0})
+        index += Batch
+        k += 1
+        train_writer.add_summary(summary, k)
+
+    # test
+    summary, pY, pL = sess.run([merged, ff.output, ff.loss], feed_dict={ff.inputs: X_test,
+                                                                        ff.labels: Y_test,
+                                                                        ff.drop_keep_rate: 1.0})
+    plots(Y_test, pY, i)
+    test_writer.add_summary(summary, k)
+    print('epoch{epoch} | train_loss:{train_loss} | test_loss:{test_loss}'.format(
+        epoch=i,
+        train_loss=sess.run(ff.loss, feed_dict={ff.inputs: X0,
+                                                ff.labels: Y0,
+                                                ff.drop_keep_rate: 1.0}),
+        test_loss=sess.run(ff.loss, feed_dict={ff.inputs: X_test,
+                                               ff.labels: Y_test,
+                                               ff.drop_keep_rate: 1.0})
+    ))
