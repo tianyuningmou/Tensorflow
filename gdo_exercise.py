@@ -5,7 +5,7 @@ Copyright () 2017
 
 All rights reserved by tianyuningmou
 
-FILE: 06_GDO.py
+FILE: gdo_exercise.py
 AUTHOR:  tianyuningmou
 DATE CREATED:  @Time : 2017/12/4 上午10:10
 
