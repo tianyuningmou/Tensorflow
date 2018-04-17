@@ -19,31 +19,36 @@ with tf.Session() as sess:
     result = sess.run(product)
 print(result)
 
-sess = tf.InteractiveSession()
 
+sess = tf.InteractiveSession()
 x = tf.Variable([1.0, 2.0])
 a = tf.constant([3.0, 3.0])
-
 x.initializer.run()
-
 sub = tf.subtract(x, a)
 print(sub.eval())
 
 
 # 创建一个变量，初始化为标量0
 state = tf.Variable(0, name='counter')
-
 # 创建一个OP，起作用是使state增加1
 one = tf.constant(1)
 new_value = tf.add(state, one)
 update = tf.assign(state, new_value)
-
 # 启动图后，必须先经过'初始化'op
 init_op = tf.global_variables_initializer()
-
 with tf.Session() as sess:
     sess.run(init_op)
     print(sess.run(state))
     for _ in range(3):
         sess.run(update)
         print(sess.run(state))
+
+
+input1 = tf.constant(3.0)
+input2 = tf.constant(2.0)
+input3 = tf.constant(5.0)
+intermed = tf.add(input2, input3)
+mul = tf.multiply(input1, intermed)
+with tf.Session() as sess:
+    result = sess.run([mul, intermed])
+    print(result)
