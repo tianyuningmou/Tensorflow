@@ -18,3 +18,13 @@ product = tf.matmul(matrix1, matrix2)
 with tf.Session() as sess:
     result = sess.run(product)
 print(result)
+
+sess = tf.InteractiveSession()
+
+x = tf.Variable([1.0, 2.0])
+a = tf.constant([3.0, 3.0])
+
+x.initializer.run()
+
+sub = tf.subtract(x, a)
+print(sub.eval())
